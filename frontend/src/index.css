@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #f8fafc;
+}
+
+:root {
+  --editor-scale: 1;
+}
+
+@media (max-width: 1024px) {
+  :root {
+    --editor-scale: 0.8;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --editor-scale: 0.55;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --editor-scale: 0.42;
+  }
+}
+
+@media (max-width: 380px) {
+  :root {
+    --editor-scale: 0.38;
+  }
+}
+
+/* Hide scrollbars for a cleaner UI */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@keyframes progress {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-progress {
+  animation: progress 2s infinite linear;
+}
+
+/* Base entry animations if tailwindcss-animate is not installed */
+.animate-in {
+  animation-duration: 500ms;
+  animation-fill-mode: both;
+}
+
+.fade-in {
+  animation-name: fade-in;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.slide-in-from-bottom {
+  animation-name: slide-in-from-bottom;
+}
+
+@keyframes slide-in-from-bottom {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.zoom-in {
+  animation-name: zoom-in;
+}
+
+@keyframes zoom-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.spin-in-12 {
+  animation-name: spin-in-12;
+}
+
+@keyframes spin-in-12 {
+  from { transform: rotate(-12deg) scale(0.9); opacity: 0; }
+  to { transform: rotate(0) scale(1); opacity: 1; }
+}

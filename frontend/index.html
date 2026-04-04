@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Word Record Generator</title>
+  </head>
+  <body>
+    <div id="root">
+      <style>
+        .splash-screen {
+          position: fixed;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background-color: #f8fafc;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          font-family: system-ui, -apple-system, sans-serif;
+          z-index: 9999;
+        }
+        .splash-logo {
+          width: 80px;
+          height: 80px;
+          border-radius: 20px;
+          object-fit: cover;
+          margin-bottom: 24px;
+          box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+          animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .spinner {
+          width: 40px;
+          height: 40px;
+          border: 4px solid #e2e8f0;
+          border-top-color: #2563eb;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin-bottom: 16px;
+        }
+        .splash-text {
+          font-size: 14px;
+          font-weight: 800;
+          color: #0f172a;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+        }
+        .splash-subtext {
+          font-size: 10px;
+          font-weight: 700;
+          color: #94a3b8;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          margin-top: 8px;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .8; transform: scale(0.95); } }
+      </style>
+      <div class="splash-screen">
+        <img src="/src/logo.jfif" alt="Logo" class="splash-logo" />
+        <div class="spinner"></div>
+        <div class="splash-text">Record Generator</div>
+        <div class="splash-subtext">Initializing Studio...</div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
