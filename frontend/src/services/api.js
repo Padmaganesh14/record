@@ -1,5 +1,5 @@
 // API Base URL - uses environment variable or falls back to localhost
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
 /**
  * Save a document template to the server
