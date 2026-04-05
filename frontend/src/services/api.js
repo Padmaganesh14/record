@@ -1,8 +1,20 @@
-// API Base URL - uses environment variable or falls back to localhost
+// API Base URL - uses environment variable or fallback
 const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
 /**
- * Save a document template to the server
+ * Helper function to handle responses
+ */
+const handleResponse = async (response, errorMessage) => {
+  if (!response.ok) {
+    const text = await response.text();
+    console.error("API Error:", response.status, text);
+    throw new Error(`${errorMessage} (${response.status})`);
+  }
+  return response.json();
+};
+
+/**
+ * Save a document template
  */
 export const saveTemplate = async (data) => {
   const response = await fetch(`${API_URL}/save_template`, {
@@ -10,91 +22,74 @@ export const saveTemplate = async (data) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });
-  if (!response.ok) throw new Error('Failed to save template');
-  return response.json();
+  return handleResponse(response, 'Failed to save template');
 };
 
 /**
- * Load a template by code
+ * Load template
  */
 export const loadTemplate = async (code) => {
   const response = await fetch(`${API_URL}/load_template/${code}`);
-  if (!response.ok) throw new Error('Template not found');
-  return response.json();
+  return handleResponse(response, 'Template not found');
 };
 
 /**
- * List all available templates
+ * List templates
  */
 export const listTemplates = async () => {
   const response = await fetch(`${API_URL}/list_templates`);
-  if (!response.ok) throw new Error('Failed to load templates');
-  return response.json();
+  return handleResponse(response, 'Failed to load templates');
 };
 
 /**
- * Delete a template by code
+ * Delete template
  */
 export const deleteTemplate = async (code) => {
   const response = await fetch(`${API_URL}/delete_template/${code}`, {
     method: 'DELETE',
   });
-  if (!response.ok) throw new Error('Failed to delete template');
-  return response.json();
+  return handleResponse(response, 'Failed to delete template');
 };
 
 /**
- * Generate a Word document from blocks and settings
- * 
- * Mobile-compatible download approach:
- * - Fetches from backend with proper error handling
- * - Returns blob for client-side download handling
- * - Supports both desktop and mobile browsers
+ * Generate Word document
  */
 export const generateDoc = async (formData) => {
   try {
-    console.log('Generating document from API:', API_URL);
-    
+    console.log('API URL:', API_URL);
+
     const response = await fetch(`${API_URL}/generate`, {
       method: 'POST',
       body: formData,
     });
-    
+
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Server error:', response.status, errorText);
-      
-      if (response.status === 0 || response.status === 503) {
-        throw new Error('Backend server is not accessible. Check if Flask is running.');
-      }
       throw new Error(`Server error: ${response.status}`);
     }
-    
-    // Validate response is blob (.docx file)
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/vnd.openxmlformats')) {
-      console.warn('Unexpected content-type:', contentType);
-    }
-    
+
     const blob = await response.blob();
-    if (blob.size === 0) {
-      throw new Error('Server returned empty file');
+
+    if (!blob || blob.size === 0) {
+      throw new Error('Empty file received from server');
     }
-    
+
     console.log('✓ Document generated:', blob.size, 'bytes');
     return blob;
+
   } catch (error) {
-    console.error('Document generation error:', error);
-    
-    // Provide helpful error messages
+    console.error('Error:', error);
+
     if (error.message.includes('Failed to fetch')) {
       throw new Error(
-        'Cannot connect to backend. Ensure:\n' +
-        '1. Flask server is running (python app.py)\n' +
-        '2. VITE_API_URL is set correctly (http://localhost:5173 or your IP)'
+        'Cannot connect to backend.\n' +
+        '1. Backend server is running\n' +
+        '2. VITE_BACKEND_URL is correct\n' +
+        '3. CORS is enabled on backend'
       );
     }
-    
+
     throw error;
   }
 };

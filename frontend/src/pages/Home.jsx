@@ -108,11 +108,11 @@ export default function Home() {
     }
   };
 
-  // Load template from JSON file
+  // Load template from DOCX or JSON file
   const onLoad = () => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.json';
+    input.accept = '.docx,.json';
     
     input.onchange = async (e) => {
       const file = e.target.files[0];
@@ -120,23 +120,54 @@ export default function Home() {
       
       setIsProcessing(true);
       try {
-        const fileContent = await file.text();
-        const data = JSON.parse(fileContent);
-        
-        // Validate JSON structure
-        if (!data.blocks || !data.settings) {
-          throw new Error('Invalid JSON format. Must contain "blocks" and "settings" properties.');
+        if (file.name.toLowerCase().endsWith('.docx')) {
+          // Handle DOCX file
+          const formData = new FormData();
+          formData.append('file', file);
+          
+          const API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+          const response = await fetch(`${API_URL}/parse_docx`, {
+            method: 'POST',
+            body: formData
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to parse DOCX file');
+          }
+          
+          const data = await response.json();
+          if (data.success) {
+            setBlocks(data.blocks || []);
+            setSettings(data.settings || {
+              watermarkText: '',
+              enableBorder: false,
+              layout: 'normal'
+            });
+            alert(`✓ Document loaded successfully!\n\n${data.blocks.length} blocks imported.`);
+          } else {
+            throw new Error(data.error || 'Failed to parse document');
+          }
+        } else {
+          // Handle JSON file
+          const fileContent = await file.text();
+          const data = JSON.parse(fileContent);
+          
+          // Validate JSON structure
+          if (!data.blocks || !data.settings) {
+            throw new Error('Invalid JSON format. Must contain "blocks" and "settings" properties.');
+          }
+          
+          // Load blocks and settings
+          setBlocks(data.blocks || []);
+          setSettings({
+            watermarkText: data.settings.watermarkText || '',
+            enableBorder: data.settings.enableBorder !== undefined ? data.settings.enableBorder : true,
+            layout: data.settings.layout || 'normal'
+          });
+          
+          alert('✓ Template loaded successfully from file');
         }
-        
-        // Load blocks and settings
-        setBlocks(data.blocks || []);
-        setSettings({
-          watermarkText: data.settings.watermarkText || '',
-          enableBorder: data.settings.enableBorder !== undefined ? data.settings.enableBorder : true,
-          layout: data.settings.layout || 'normal'
-        });
-        
-        alert('✓ Template loaded successfully from file');
       } catch (e) {
         alert('Load failed: ' + (e instanceof SyntaxError ? 'Invalid JSON file' : e.message));
       } finally {
